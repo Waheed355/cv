@@ -1,0 +1,44 @@
+import cv2
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+# Load your dataset of labeled crop images (pest and non-pest)
+# This should be a list of tuples where each tuple contains the image path and its label (0 for non-pest, 1 for pest)
+data = [("path_to_image1.jpg", 0), ("path_to_image2.jpg", 1), ...]
+
+# Prepare data for training
+images = []
+labels = []
+
+for image_path, label in data:
+    img = cv2.imread(image_path)
+    img = cv2.resize(img, (100, 100))  # Resize the image to a fixed size
+    images.append(img)
+    labels.append(label)
+
+# Convert lists to NumPy arrays
+images = np.array(images)
+labels = np.array(labels)
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=42)
+
+# Flatten the image data
+X_train = X_train.reshape(X_train.shape[0], -1)
+X_test = X_test.reshape(X_test.shape[0], -1)
+
+# Train a Support Vector Machine (SVM) classifier
+svm_classifier = SVC(kernel='linear', C=1.0, random_state=42)
+svm_classifier.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = svm_classifier.predict(X_test)
+
+# Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy * 100:.2f}%")
+
+# Now you can use the trained SVM classifier to detect pests in new crop images.
+# Load a new image, preprocess it in the same way as the training data, and use svm_classifier.predict() to make predictions.
